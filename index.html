@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Resizer</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f8f9;
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Container */
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Heading */
+    h1 {
+      font-size: 2.5rem;
+      color: #4A90E2;
+      margin-bottom: 30px;
+    }
+
+    /* Welcome Message */
+    .welcome-message {
+      font-size: 1.5rem;
+      margin-top: 20px;
+      color: #4A90E2;
+      font-weight: bold;
+    }
+
+    /* Image Upload */
+    .upload-section input[type="file"] {
+      padding: 12px 24px;
+      background-color: #4A90E2;
+      border-radius: 8px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    .upload-section input[type="file"]:hover {
+      background-color: #357ABD;
+    }
+
+    .preview-container {
+      margin-top: 20px;
+      background-color: #eee;
+      width: 100%;
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    #noImageText {
+      color: #888;
+      font-size: 1.2rem;
+    }
+
+    /* Dimensions Section */
+    .dimensions {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    label {
+      font-size: 1rem;
+      margin-top: 15px;
+      display: block;
+    }
+
+    input[type="number"] {
+      padding: 8px;
+      font-size: 1rem;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 40%;
+      max-width: 150px;
+      text-align: center;
+    }
+
+    /* DPI & Format Selection */
+    .options {
+      margin-top: 20px;
+    }
+
+    select, input[type="number"] {
+      padding: 10px;
+      font-size: 1rem;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 45%;
+    }
+
+    /* Custom DPI Input */
+    #customDpiContainer {
+      margin-top: 10px;
+      display: none;
+    }
+
+    .size-preview {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #777;
+    }
+
+    /* Buttons */
+    button {
+      padding: 15px 30px;
+      background-color: #4A90E2;
+      color: white;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 250px;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    button:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      input[type="number"], select {
+        width: 90%;
+        margin: 10px 0;
+      }
+
+      button {
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      .dimensions {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Tablet & Small Desktop Responsiveness */
+    @media (min-width: 769px) and (max-width: 1200px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      input[type="number"], select {
+        width: 45%;
+      }
+
+      button {
+        width: 250px;
+      }
+    }
+
+    /* Large Desktop Responsiveness */
+    @media (min-width: 1200px) {
+      .container {
+        padding: 30px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .dimensions {
+        justify-content: space-between;
+        width: 70%;
+      }
+
+      button {
+        width: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Image Resizer</h1>
+    
+    <!-- Welcome Message -->
+    <div class="welcome-message" role="status">
+      Welcome to Image Resizer by Nandan Kumar Singh. You can upload an image to start resizing.
+    </div>
+
+    <!-- Image Upload Section -->
+    <div class="upload-section">
+      <input type="file" id="uploadImage" aria-label="Upload Image" onchange="previewImage()">
+      <div id="imagePreview" role="img" alt="Uploaded image preview" class="preview-container">
+        <p id="noImageText">Upload an image to preview</p>
+      </div>
+    </div>
+
+    <!-- Dimensions Section -->
+    <div class="dimensions">
+      <label for="width">Width:</label>
+      <input type="number" id="width" aria-label="Enter desired width for the image">
+      <label for="height">Height:</label>
+      <input type="number" id="height" aria-label="Enter desired height for the image">
+    </div>
+
+    <!-- DPI & Format Selection -->
+    <div class="options">
+      <label for="dpi">Select DPI:</label>
+      <select id="dpiSelect" aria-label="Select DPI" onchange="toggleCustomDpi()">
+        <option value="72">72 DPI (Web)</option>
+        <option value="300">300 DPI (Print)</option>
+        <option value="custom">Custom</option>
+      </select>
+
+      <div id="customDpiContainer" style="display: none;">
+        <label for="customDpi">Enter custom DPI:</label>
+        <input type="number" id="customDpi" placeholder="Enter DPI" aria-label="Enter custom DPI">
+      </div>
+    </div>
+
+    <!-- File Size Preview -->
+    <div id="sizePreview" class="size-preview">
+      <p>Original Size: <span id="originalSize">0 KB</span></p>
+      <p>Resized Size: <span id="resizedSize">0 KB</span></p>
+    </div>
+
+    <!-- Target File Size Section -->
+    <div class="dimensions">
+      <label for="targetSize">Target File Size (KB):</label>
+      <input type="number" id="targetSize" aria-label="Enter target file size in KB">
+    </div>
+
+    <!-- Buttons -->
+    <div class="buttons">
+      <button id="previewButton" aria-label="Preview resized image" onclick="resizeImage()">Preview Resize</button>
+      <button id="downloadButton" aria-label="Download resized image" onclick="downloadImage()" style="display:none;">Download</button>
+    </div>
+  </div>
+
+  <script>
+    let imageFile;
+    let resizedBlob;
+    let originalImageSize;
+    let quality = 1;
+
+    function previewImage() {
+      const file = document.getElementById('uploadImage').files[0];
+      if (file) {
+        imageFile = file;
+        originalImageSize = file.size / 1024; // size in KB
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            // Display Image
+            document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}" alt="Uploaded image preview" />`;
+            document.getElementById('originalSize').textContent = `${originalImageSize.toFixed(2)} KB`;
+            document.getElementById('noImageText').style.display = 'none'; // Hide the no-image message
+            alert("File has been opened successfully, you can now resize the image.");
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function toggleCustomDpi() {
+      const dpiSelect = document.getElementById('dpiSelect').value;
+      const customDpiContainer = document.getElementById('customDpiContainer');
+
+      if (dpiSelect === "custom") {
+        customDpiContainer.style.display = "block";
+      } else {
+        customDpiContainer.style.display = "none";
+      }
+    }
+
+    function resizeImage() {
+      // Get target size from the user
+      const targetSizeKB = parseInt(document.getElementById('targetSize').value);
+      if (!targetSizeKB || targetSizeKB <= 0) {
+        alert('Please enter a valid target file size in KB');
+        return;
+      }
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = document.querySelector('#imagePreview img');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      
+      // Compress the image and adjust its quality to meet the target size
+      quality = 1;
+      resizedBlob = null;
+
+      // Adjust the quality until the image size is close to the target size
+      function tryCompress() {
+        canvas.toBlob(function(blob) {
+          if (blob.size <= targetSizeKB * 1024 || quality <= 0.05) {
+            resizedBlob = blob;
+            document.getElementById('resizedSize').textContent = `${(blob.size / 1024).toFixed(2)} KB`;
+            document.getElementById('downloadButton').style.display = 'inline-block';
+          } else {
+            quality -= 0.05; // Reduce the quality
+            tryCompress(); // Try again with lower quality
+          }
+        }, 'image/jpeg', quality);
+      }
+
+      tryCompress(); // Start the compression
+    }
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(resizedBlob);
+      link.download = 'resized_image.jpg';
+      link.click();
+    }
+  </script>
+</body>
+</html>
